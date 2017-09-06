@@ -1,0 +1,86 @@
+version: '2'
+services:
+  zipkin:
+    image: citadel/tmx-zipkinsvr:v7a
+    ports:
+      - "9411:9411"
+    environment:
+      SERVER_PORT: "9411"
+  eurekaserver:
+     image:   citadel/tmx-eureka-service:v7a
+     ports:
+       - "8761:8761"
+  configserver:
+    image: citadel/tmx-confsvr:v7a
+    ports:
+       - "8762:8762"
+    environment:
+       PROFILE: "native"
+       SERVER_PORT: "8762"
+       EUREKASERVER_URI: "http://eurekaserver:8761/eureka/"
+       EUREKASERVER_PORT: "8761"
+       ENCRYPT_KEY:       "IMSYMMETRIC"
+  authenticationservice:
+      image: citadel/tmx-authentication-service:v7a
+      ports:
+        - "8763:8763"
+      environment:
+        PROFILE: "default"
+        SERVER_PORT: "8763"
+        CONFIGSERVER_URI: "http://configserver:8762"
+        CONFIGSERVER_PORT: "8762"
+        EUREKASERVER_URI: "http://eurekaserver:8761/eureka/"
+        EUREKASERVER_PORT:        "8761"
+        ENCRYPT_KEY:       "IMSYMMETRIC"        
+  addressservice:
+      image: citadel/tmx-address-service:v7a
+      ports:
+        - "8085:8085"
+      environment:
+        PROFILE: "default"
+        SERVER_PORT: "8085"
+        AUTHSERVER_PORT: "8763"
+        EUREKASERVER_PORT: "8761"
+        ZIPKIN_PORT: "9411"
+        AUTHSERVER_URI: "http://authenticationservice:8763/auth/user"
+        EUREKASERVER_URI: "http://eurekaserver:8761/eureka/"
+        ZIPKIN_URL: "http://zipkin:9411"
+        ZIPKIN_URI: "http://zipkin/"
+        ENCRYPT_KEY: "IMSYMMETRIC"
+  pupilservice:
+      image: citadel/tmx-pupil-service:v7a
+      ports:
+        - "8086:8086"
+      environment:
+        PROFILE: "default"
+        SERVER_PORT: "8086"
+        AUTHSERVER_PORT: "8763"
+        CONFIGSERVER_PORT: "8762"
+        EUREKASERVER_PORT: "8761"
+        ZIPKIN_PORT: "9411"
+        AUTHSERVER_URI: "http://authenticationservice:8763/auth/user"
+        CONFIGSERVER_URI: "http://configserver:8762"
+        EUREKASERVER_URI: "http://eurekaserver:8761/eureka/"
+        ZIPKIN_URL: "http://zipkin:9411"
+        ZIPKIN_URI: "http://zipkin/"
+        ENCRYPT_KEY:       "IMSYMMETRIC"
+  zuulserver:
+    image: citadel/tmx-zuulsvr:v7a
+    ports:
+      - "5555:5555"
+    environment:
+      PROFILE: "default"
+      SERVER_PORT: "5555"
+      CONFIGSERVER_PORT: "8762"
+      EUREKASERVER_PORT: "8761"
+      ZIPKIN_PORT: "9411"
+      CONFIGSERVER_URI: "http://configserver:8762"
+      EUREKASERVER_URI: "http://eurekaserver:8761/eureka/"
+      ZIPKIN_URI: "http://zipkin/"
+      ZIPKIN_URL: "http://zipkin:9411"
+      ENCRYPT_KEY:       "IMSYMMETRIC"         
+  logspout:
+    image: gliderlabs/logspout
+    command: syslog://logs5.papertrailapp.com:33437
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock        

@@ -1,0 +1,2 @@
+#service.address.url: http://localhost:8085/v1/addresses/{eircode}
+service.address.url: http://addressservice:8085/v1/addresses/{eircode}

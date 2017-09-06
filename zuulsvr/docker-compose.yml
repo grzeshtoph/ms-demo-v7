@@ -1,0 +1,17 @@
+version: '2'
+services:
+  zuulserver:
+    image: citadel/tmx-zuulsvr:v7a
+    ports:
+      - "5555:5555"
+    environment:
+      PROFILE: "default"
+      SERVER_PORT: "5555"
+      CONFIGSERVER_PORT: "8762"
+      EUREKASERVER_PORT: "8761"
+      ZIPKIN_PORT: "9411"
+      CONFIGSERVER_URI: "http://configserver:8762"
+      EUREKASERVER_URI: "http://eurekaserver:8761/eureka/"
+      ZIPKIN_URI: "http://zipkin/"
+      ZIPKIN_URL: "http://zipkin:9411"
+      ENCRYPT_KEY:       "IMSYMMETRIC" 
